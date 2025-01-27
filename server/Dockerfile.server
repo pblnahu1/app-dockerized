@@ -1,0 +1,12 @@
+# establece la imagen base
+FROM node:18
+# establece el directorio de trabajo
+WORKDIR /usr/src/app
+# copia todos los archivos al contenedor
+COPY . .
+# instalar las dependencias
+RUN npm install
+# expone el puerto 3000 para que el servidor esté accesible
+EXPOSE 3000
+# ejecuta nodemon si el entorno es "development" de lo contrario usa node
+CMD ["sh","-c","if [ \"$NODE_ENV\" = \"development\" ]; then npx nodemon index.js; else node index.js; fi"]

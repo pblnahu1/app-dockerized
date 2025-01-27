@@ -1,0 +1,42 @@
+# versión de docker compose compatible con docker
+version: "3.9"
+# defino servicios (contenedores)
+services:
+  # servicio que define el contenedor para mi servidor
+  server: 
+    build:
+      # directorio donde está el código del servidor 
+      context: ./server
+      # le digo qué archivo se usará para construir la imagen
+      dockerfile: Dockerfile.server
+    ports:
+      # mapeo el puerto 3000 del contenedor al puerto 3000 del host (me permite acceder al backend desde el navegador o desde otros servicios)
+      - "3000:3000"
+    volumes: 
+      # mapeo la carpeta './server' del host al directorio '/usr/src/app' del contenedor... permite que cada cambio se vea en el contenedor
+      - ./server:/usr/src/app
+    environment:
+      # defino la variable de entorno NODE_ENV, configuro el entorno del servidor como "development" (desarrollo)
+      - NODE_ENV=development
+    networks:
+      # defino la red que usaran los contenedores
+      - app-network
+  #defino el servicio que define el contenedor para mi cliente
+  client: 
+    build: 
+      context: ./client
+      dockerfile: Dockerfile.client
+    ports:
+      # mapeo el puerto 5173 para servir la app frontend
+      - "5173:5173"
+    volumes:
+      # mapeo la carpeta './client' del host al directorio '/usr/src/app' del contenedor... permite que cada cambio se vea en el contenedor
+      - ./client:/usr/src/app
+    environment:
+      # defino la variable de entorno NODE_ENV, configuro el entorno del cliente como "production" (produccion)
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+networks:
+  app-network:

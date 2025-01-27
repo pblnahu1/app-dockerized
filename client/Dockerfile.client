@@ -1,0 +1,16 @@
+# establece la imagen base
+FROM node:18
+# establece el directorio de trabajo
+WORKDIR /usr/src/app
+# copia todos los archivods al contenedor
+COPY . .
+# instalar las dependencias
+RUN npm install
+# construir la app
+RUN npm run build
+# instalar serve
+RUN npm install -g serve
+# exponer el puerto 5173 para que la app esté accesible
+EXPOSE 5173 
+# ejecutar serve
+CMD ["serve", "-s", "dist", "-l", "5173"]
