@@ -67,6 +67,31 @@ En el contexto de contenedores como Docker, 0.0.0.0 significa que el servidor es
     - Si no usás Docker y ejecutás tu servidor localmente:
         - `localhost` o `127.0.0.1` funcionan perfectamente, ya que no necesitás preocuparte por redes internas de contenedores.
 
+### La red `app-network` y la configuración `0.0.0.0` trabajan en conjunto para permitir que los servicios dentro de los contenedores puedan comunicarse y también que el host pueda acceder a ellos.
+
+1. ¿Qué hace `app-network`?
+Cuando definís la red `app-network` en tu archivo `docker-compose.yml`, estás creando una red de Docker específica donde los contenedores (en este caso, server y client) pueden comunicarse directamente entre sí, como si estuvieran conectados a una misma red local.
+**Ventajas de una red personalizada (app-network):**
+    - **Aislamiento**: Los servicios en `app-network` están aislados de otros contenedores que no forman parte de esta red.
+    - **Resolución de nombres**: Los contenedores pueden comunicarse entre sí usando los nombres de sus servicios (por ejemplo, el cliente puede comunicarse con el servidor simplemente usando `http://server:3000`).
+2. ¿Qué hace `0.0.0.0`?
+Por defecto, cuando un servidor (como Node.js) está configurado para escuchar en `0.0.0.0`, acepta conexiones desde cualquier interfaz de red que esté disponible:
+    - **Desde dentro del contenedor**: Esto permite que otros contenedores en la misma red (por ejemplo, client) puedan acceder al servidor.
+    - **Desde fuera del contenedor (el host)**: Cuando mapeas el puerto con Docker (por ejemplo, `3000:3000`), `0.0.0.0` asegura que el servidor acepte conexiones externas desde tu host.
+3. ¿Cómo trabajan `app-network` y `0.0.0.0` juntos?
+    - **Comunicación entre contenedores (red interna)**:
+        - Gracias a `app-network`, los contenedores pueden encontrarse usando los nombres de los servicios (server y client) en lugar de direcciones IP.
+        - Por ejemplo, el cliente puede acceder al servidor con http://server:3000.
+    - **Acceso desde el host**:
+        - 0.0.0.0 asegura que el servidor escuche en todas las interfaces de red, incluyendo la interfaz creada por Docker para mapear puertos.
+        - Así, podés acceder al servidor desde tu navegador en http://localhost:3000 (gracias al mapeo 3000:3000).
+4. **Conclusión**
+    - La red `app-network` asegura la comunicación interna entre contenedores de forma sencilla y controlada.
+    - `0.0.0.0` asegura que el servidor esté disponible tanto para otros contenedores como para tu computadora local.
+
+Ambas configuraciones se complementan y son esenciales para que el proyecto funcione de manera flexible dentro de Docker.
+
+
 ## Opción 2. Ejecutar sin Docker (localmente)
 Podés ejecutarlo sin usar Docker pero debés tener abierta dos terminales para ambos servicios.
 
